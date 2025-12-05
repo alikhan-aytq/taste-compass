@@ -1,0 +1,110 @@
+import { useState, useEffect } from "react";
+import { Header } from "@/components/layout/Header";
+import { RecipeCard } from "@/components/recipes/RecipeCard";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from "@supabase/supabase-js";
+
+const MyRecipes = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [recipes, setRecipes] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchMyRecipes();
+    }
+  }, [user]);
+
+  const fetchMyRecipes = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("recipes")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching recipes:", error);
+      return;
+    }
+
+    setRecipes(data || []);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header user={user} />
+      
+      <main className="container py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Мои рецепты</h1>
+            <p className="text-muted-foreground">Управляйте своими личными рецептами</p>
+          </div>
+          <Button asChild>
+            <Link to="/create-recipe">
+              <Plus className="h-4 w-4 mr-2" />
+              Создать рецепт
+            </Link>
+          </Button>
+        </div>
+
+        {recipes.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground mb-4">У вас пока нет рецептов</p>
+            <Button asChild>
+              <Link to="/create-recipe">Создать первый рецепт</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                id={recipe.id}
+                title={recipe.title}
+                description={recipe.description}
+                imageUrl={recipe.image_url}
+                prepTime={recipe.prep_time}
+                cookTime={recipe.cook_time}
+                servings={recipe.servings}
+                difficulty={recipe.difficulty}
+                category={recipe.category}
+                userId={user?.id}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default MyRecipes;
