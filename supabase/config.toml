@@ -1,10 +1,1 @@
 project_id = "azlqozlfbqaonlmdyqqy"
-[
-auth
-]
-enable_signup = true
-
-[
-auth.email
-]
-enable_confirmations = false
