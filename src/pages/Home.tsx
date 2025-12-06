@@ -6,7 +6,7 @@ import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { Search, ChefHat, Clock, Heart, BookOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-cooking.jpg";
 
 interface Recipe {

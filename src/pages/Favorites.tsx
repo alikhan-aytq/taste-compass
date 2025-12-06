@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { RecipeCard } from '@/components/recipes/RecipeCard';
 import { Loader2, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Recipe {
   id: string;
