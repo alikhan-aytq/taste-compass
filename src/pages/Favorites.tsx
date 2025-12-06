@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { RecipeCard } from '@/components/recipes/RecipeCard';
 import { Loader2, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { User } from '@supabase/supabase-js';
-import { useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Recipe {
   id: string;
@@ -25,11 +24,17 @@ interface FavoriteWithRecipe {
 }
 
 const Favorites = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
 
   const fetchFavorites = useCallback(async (userId: string) => {
     try {
@@ -70,19 +75,12 @@ const Favorites = () => {
   }, [toast]);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/auth');
-        return;
-      }
-      setUser(user);
+    if (user) {
       fetchFavorites(user.id);
-    };
-    getUser();
-  }, [navigate, fetchFavorites]);
+    }
+  }, [user, fetchFavorites]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <>
         <Header user={user} />

@@ -6,7 +6,7 @@ import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { Search, ChefHat, Clock, Heart, BookOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Session } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-cooking.jpg";
 
 interface Recipe {
@@ -22,25 +22,10 @@ interface Recipe {
 }
 
 const Home = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const { user } = useAuth();
   const [featuredRecipes, setFeaturedRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     fetchFeaturedRecipes();

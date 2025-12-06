@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Clock, Users, ChefHat, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/types";
 
 interface Recipe {
@@ -30,18 +31,13 @@ export default function RecipeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [user, setUser] = useState<import("@supabase/supabase-js").User | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      setUser(authUser);
-      setUserId(authUser?.id || null);
-
       if (!id) return;
 
       const { data, error } = await supabase
@@ -63,11 +59,11 @@ export default function RecipeDetail() {
 
       setRecipe(data);
 
-      if (authUser) {
+      if (user) {
         const { data: favData } = await supabase
           .from("favorites")
           .select("id")
-          .eq("user_id", authUser.id)
+          .eq("user_id", user.id)
           .eq("recipe_id", id)
           .single();
 
@@ -78,10 +74,10 @@ export default function RecipeDetail() {
     };
 
     fetchData();
-  }, [id, navigate, toast]);
+  }, [id, navigate, toast, user]);
 
   const handleToggleFavorite = async () => {
-    if (!userId || !id) {
+    if (!user || !id) {
       toast({
         title: "Authentication required",
         description: "Sign in to add to favorites",
@@ -95,14 +91,14 @@ export default function RecipeDetail() {
         await supabase
           .from("favorites")
           .delete()
-          .eq("user_id", userId)
+          .eq("user_id", user.id)
           .eq("recipe_id", id);
         setIsFavorite(false);
         toast({ title: "Removed from favorites" });
       } else {
         await supabase
           .from("favorites")
-          .insert({ user_id: userId, recipe_id: id });
+          .insert({ user_id: user.id, recipe_id: id });
         setIsFavorite(true);
         toast({ title: "Added to favorites" });
       }

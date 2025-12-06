@@ -143,7 +143,7 @@ export const RecipeCard = ({
           {servings && (
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
-              <span>{servings} порц.</span>
+              <span>{servings} serv.</span>
             </div>
           )}
         </CardFooter>
