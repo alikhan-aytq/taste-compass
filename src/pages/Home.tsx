@@ -27,7 +27,7 @@ interface RecipeWithFavorites extends Recipe {
 
 const Home = () => {
   const { user } = useAuth();
-  const [featuredRecipes, setFeaturedRecipes] = useState<Recipe[]>([]);
+  const [featuredRecipes, setFeaturedRecipes] = useState<RecipeWithFavorites[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
@@ -177,7 +177,7 @@ const Home = () => {
                 difficulty={recipe.difficulty}
                 category={recipe.category}
                 userId={user?.id}
-                favoritesCount={(recipe as any).favorites?.[0]?.count || 0}
+                favoritesCount={recipe.favorites?.[0]?.count || 0}
               />
             ))}
           </div>
