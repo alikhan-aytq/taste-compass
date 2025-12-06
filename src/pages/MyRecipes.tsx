@@ -65,22 +65,22 @@ const MyRecipes = () => {
       <main className="container py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Мои рецепты</h1>
-            <p className="text-muted-foreground">Управляйте своими личными рецептами</p>
+            <h1 className="text-4xl font-bold mb-2">My Recipes</h1>
+            <p className="text-muted-foreground">Manage your personal recipes</p>
           </div>
           <Button asChild>
             <Link to="/create-recipe">
               <Plus className="h-4 w-4 mr-2" />
-              Создать рецепт
+              Create Recipe
             </Link>
           </Button>
         </div>
 
         {recipes.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">У вас пока нет рецептов</p>
+            <p className="text-muted-foreground mb-4">You have no recipes yet</p>
             <Button asChild>
-              <Link to="/create-recipe">Создать первый рецепт</Link>
+              <Link to="/create-recipe">Create your first recipe</Link>
             </Button>
           </div>
         ) : (

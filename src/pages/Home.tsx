@@ -67,16 +67,16 @@ const Home = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                Откройте мир <span className="bg-gradient-warm bg-clip-text text-transparent">вкусных рецептов</span>
+                Discover a world of <span className="bg-gradient-warm bg-clip-text text-transparent">delicious recipes</span>
               </h1>
               <p className="text-xl text-muted-foreground">
-                Более 1000 проверенных рецептов для каждого случая. Создавайте меню, управляйте покупками и готовьте с удовольствием.
+                Over 1000 tested recipes for every occasion. Create menus, manage shopping, and cook with joy.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
-                    placeholder="Найти рецепт..."
+                    placeholder="Find a recipe..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
@@ -84,7 +84,7 @@ const Home = () => {
                   />
                 </div>
                 <Button onClick={handleSearch} size="lg" className="h-12">
-                  Искать
+                  Search
                 </Button>
               </div>
             </div>
@@ -108,36 +108,36 @@ const Home = () => {
             <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Search className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold">Умный поиск</h3>
+            <h3 className="text-xl font-semibold">Smart Search</h3>
             <p className="text-muted-foreground">
-              Найдите рецепт по ингредиентам, категории или сложности
+              Find recipes by ingredients, category, or difficulty
             </p>
           </div>
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="h-16 w-16 rounded-full bg-secondary/10 flex items-center justify-center">
               <Clock className="h-8 w-8 text-secondary" />
             </div>
-            <h3 className="text-xl font-semibold">Таймер готовки</h3>
+            <h3 className="text-xl font-semibold">Cooking Timer</h3>
             <p className="text-muted-foreground">
-              Встроенный таймер поможет не упустить важный момент
+              Built-in timer helps you never miss an important moment
             </p>
           </div>
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="h-16 w-16 rounded-full bg-accent/10 flex items-center justify-center">
               <BookOpen className="h-8 w-8 text-accent" />
             </div>
-            <h3 className="text-xl font-semibold">Меню на неделю</h3>
+            <h3 className="text-xl font-semibold">Weekly Menu</h3>
             <p className="text-muted-foreground">
-              Планируйте питание заранее и экономьте время
+              Plan your meals in advance and save time
             </p>
           </div>
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Heart className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold">Избранное</h3>
+            <h3 className="text-xl font-semibold">Favorites</h3>
             <p className="text-muted-foreground">
-              Сохраняйте любимые рецепты и делитесь ими
+              Save your favorite recipes and share them
             </p>
           </div>
         </div>
@@ -148,11 +148,11 @@ const Home = () => {
         <section className="container py-16 md:py-24 bg-muted/30">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Популярные рецепты</h2>
-              <p className="text-muted-foreground">Рецепты, которые любят наши пользователи</p>
+              <h2 className="text-3xl font-bold mb-2">Popular Recipes</h2>
+              <p className="text-muted-foreground">Recipes loved by our users</p>
             </div>
             <Button asChild variant="outline">
-              <Link to="/recipes">Смотреть все</Link>
+              <Link to="/recipes">View All</Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -181,13 +181,13 @@ const Home = () => {
           <div className="bg-gradient-warm rounded-2xl p-12 text-center text-white">
             <ChefHat className="h-16 w-16 mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Начните готовить вместе с нами
+              Start cooking with us
             </h2>
             <p className="text-xl mb-8 opacity-90">
-              Создайте аккаунт и получите доступ ко всем функциям
+              Create an account and get access to all features
             </p>
             <Button asChild size="lg" variant="secondary">
-              <Link to="/auth">Присоединиться бесплатно</Link>
+              <Link to="/auth">Join for Free</Link>
             </Button>
           </div>
         </section>

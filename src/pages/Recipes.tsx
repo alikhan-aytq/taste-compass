@@ -99,15 +99,15 @@ const Recipes = () => {
       
       <main className="container py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Все рецепты</h1>
-          <p className="text-muted-foreground">Найдите идеальный рецепт для любого случая</p>
+          <h1 className="text-4xl font-bold mb-2">All Recipes</h1>
+          <p className="text-muted-foreground">Find the perfect recipe for any occasion</p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Поиск рецептов..."
+              placeholder="Search recipes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -116,34 +116,34 @@ const Recipes = () => {
           
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Категория" />
+              <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Все категории</SelectItem>
-              <SelectItem value="Завтрак">Завтрак</SelectItem>
-              <SelectItem value="Обед">Обед</SelectItem>
-              <SelectItem value="Ужин">Ужин</SelectItem>
-              <SelectItem value="Десерт">Десерт</SelectItem>
-              <SelectItem value="Закуски">Закуски</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="Breakfast">Breakfast</SelectItem>
+              <SelectItem value="Lunch">Lunch</SelectItem>
+              <SelectItem value="Dinner">Dinner</SelectItem>
+              <SelectItem value="Dessert">Dessert</SelectItem>
+              <SelectItem value="Appetizers">Appetizers</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
             <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Сложность" />
+              <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Любая</SelectItem>
-              <SelectItem value="easy">Легко</SelectItem>
-              <SelectItem value="medium">Средне</SelectItem>
-              <SelectItem value="hard">Сложно</SelectItem>
+              <SelectItem value="all">Any</SelectItem>
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="hard">Hard</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {filteredRecipes.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">Рецептов не найдено</p>
+            <p className="text-muted-foreground">No recipes found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

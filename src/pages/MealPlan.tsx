@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 import { format, startOfWeek, addDays, addWeeks, subWeeks } from "date-fns";
-import { ru } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 const MealPlan = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -74,8 +74,8 @@ const MealPlan = () => {
       
       <main className="container py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Меню на неделю</h1>
-          <p className="text-muted-foreground">Планируйте питание заранее</p>
+          <h1 className="text-4xl font-bold mb-2">Weekly Meal Plan</h1>
+          <p className="text-muted-foreground">Plan your meals in advance</p>
         </div>
 
         <div className="flex items-center justify-between mb-6">
@@ -89,8 +89,8 @@ const MealPlan = () => {
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
             <span className="font-semibold">
-              {format(currentWeek, "d MMMM", { locale: ru })} -{" "}
-              {format(addDays(currentWeek, 6), "d MMMM yyyy", { locale: ru })}
+              {format(currentWeek, "MMMM d", { locale: enUS })} -{" "}
+              {format(addDays(currentWeek, 6), "MMMM d, yyyy", { locale: enUS })}
             </span>
           </div>
           <Button
@@ -107,27 +107,27 @@ const MealPlan = () => {
             <Card key={index}>
               <CardHeader>
                 <CardTitle className="text-lg">
-                  {format(day, "EEEE, d MMMM", { locale: ru })}
+                  {format(day, "EEEE, MMMM d", { locale: enUS })}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <h4 className="font-semibold mb-2 text-sm text-muted-foreground">Завтрак</h4>
+                    <h4 className="font-semibold mb-2 text-sm text-muted-foreground">Breakfast</h4>
                     <div className="min-h-[80px] p-3 border rounded-lg bg-muted/30 text-sm text-muted-foreground">
-                      Не запланировано
+                      Not planned
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-2 text-sm text-muted-foreground">Обед</h4>
+                    <h4 className="font-semibold mb-2 text-sm text-muted-foreground">Lunch</h4>
                     <div className="min-h-[80px] p-3 border rounded-lg bg-muted/30 text-sm text-muted-foreground">
-                      Не запланировано
+                      Not planned
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-2 text-sm text-muted-foreground">Ужин</h4>
+                    <h4 className="font-semibold mb-2 text-sm text-muted-foreground">Dinner</h4>
                     <div className="min-h-[80px] p-3 border rounded-lg bg-muted/30 text-sm text-muted-foreground">
-                      Не запланировано
+                      Not planned
                     </div>
                   </div>
                 </div>
@@ -138,7 +138,7 @@ const MealPlan = () => {
 
         <div className="mt-8 p-6 bg-muted/30 rounded-lg text-center">
           <p className="text-muted-foreground mb-4">
-            Функция планирования меню в разработке. Скоро вы сможете добавлять рецепты в меню!
+            Meal planning feature is under development. Soon you will be able to add recipes to your menu!
           </p>
         </div>
       </main>

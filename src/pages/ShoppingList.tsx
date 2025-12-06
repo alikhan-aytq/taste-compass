@@ -106,8 +106,8 @@ const ShoppingList = () => {
     if (error) {
       console.error("Error saving shopping list:", error);
       toast({
-        title: "Ошибка",
-        description: "Не удалось сохранить список",
+        title: "Error",
+        description: "Failed to save list",
         variant: "destructive",
       });
     }
@@ -156,18 +156,18 @@ const ShoppingList = () => {
       
       <main className="container py-8 max-w-2xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Список покупок</h1>
-          <p className="text-muted-foreground">Управляйте вашими покупками</p>
+          <h1 className="text-4xl font-bold mb-2">Shopping List</h1>
+          <p className="text-muted-foreground">Manage your shopping</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Мой список</CardTitle>
+            <CardTitle>My List</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
               <Input
-                placeholder="Добавить продукт..."
+                placeholder="Add item..."
                 value={newItem}
                 onChange={(e) => setNewItem(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && addItem()}
@@ -179,7 +179,7 @@ const ShoppingList = () => {
 
             {items.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                Список пуст. Добавьте первый продукт!
+                List is empty. Add your first item!
               </p>
             ) : (
               <>
@@ -216,7 +216,7 @@ const ShoppingList = () => {
                     onClick={clearChecked}
                     className="w-full"
                   >
-                    Удалить отмеченные
+                    Remove Checked
                   </Button>
                 )}
               </>

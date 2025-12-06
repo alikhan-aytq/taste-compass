@@ -79,12 +79,12 @@ const Profile = () => {
       if (error) throw error;
 
       toast({
-        title: "Профиль обновлен",
-        description: "Изменения успешно сохранены",
+        title: "Profile updated",
+        description: "Changes saved successfully",
       });
     } catch (error: any) {
       toast({
-        title: "Ошибка",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -99,13 +99,13 @@ const Profile = () => {
       
       <main className="container py-8 max-w-2xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Профиль</h1>
-          <p className="text-muted-foreground">Управление личной информацией</p>
+          <h1 className="text-4xl font-bold mb-2">Profile</h1>
+          <p className="text-muted-foreground">Manage your personal information</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Личные данные</CardTitle>
+            <CardTitle>Personal Details</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUpdateProfile} className="space-y-4">
@@ -121,18 +121,18 @@ const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="username">Имя пользователя</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Введите имя пользователя"
+                  placeholder="Enter username"
                 />
               </div>
 
               <Button type="submit" disabled={loading}>
-                {loading ? "Сохранение..." : "Сохранить изменения"}
+                {loading ? "Saving..." : "Save Changes"}
               </Button>
             </form>
           </CardContent>
@@ -140,17 +140,17 @@ const Profile = () => {
 
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Статистика</CardTitle>
+            <CardTitle>Statistics</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4 text-center">
               <div className="p-4 bg-muted/30 rounded-lg">
                 <div className="text-3xl font-bold text-primary">0</div>
-                <div className="text-sm text-muted-foreground">Рецептов</div>
+                <div className="text-sm text-muted-foreground">Recipes</div>
               </div>
               <div className="p-4 bg-muted/30 rounded-lg">
                 <div className="text-3xl font-bold text-secondary">0</div>
-                <div className="text-sm text-muted-foreground">Избранных</div>
+                <div className="text-sm text-muted-foreground">Favorites</div>
               </div>
             </div>
           </CardContent>

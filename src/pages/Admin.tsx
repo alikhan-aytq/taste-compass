@@ -79,7 +79,7 @@ export default function Admin() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('Необходима авторизация');
+        toast.error('Authentication required');
         return;
       }
 
@@ -87,7 +87,7 @@ export default function Admin() {
       const filteredInstructions = instructions.filter(i => i.trim() !== '');
 
       if (filteredIngredients.length === 0 || filteredInstructions.length === 0) {
-        toast.error('Добавьте хотя бы один ингредиент и шаг приготовления');
+        toast.error('Add at least one ingredient and one cooking step');
         return;
       }
 
@@ -109,7 +109,7 @@ export default function Admin() {
 
       if (error) throw error;
 
-      toast.success('Рецепт успешно добавлен');
+      toast.success('Recipe added successfully');
       
       // Reset form
       setFormData({
@@ -127,7 +127,7 @@ export default function Admin() {
       setInstructions(['']);
     } catch (error) {
       console.error('Error creating recipe:', error);
-      toast.error('Ошибка при создании рецепта');
+      toast.error('Error creating recipe');
     } finally {
       setSubmitting(false);
     }
@@ -138,57 +138,57 @@ export default function Admin() {
       <div className="container max-w-4xl mx-auto px-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-3xl">Админ-панель</CardTitle>
-            <CardDescription>Добавление публичных рецептов</CardDescription>
+            <CardTitle className="text-3xl">Admin Panel</CardTitle>
+            <CardDescription>Add public recipes</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Название рецепта *</Label>
+                <Label htmlFor="title">Recipe Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
-                  placeholder="Борщ украинский"
+                  placeholder="Chicken Parmesan"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Описание</Label>
+                <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Краткое описание рецепта..."
+                  placeholder="Brief description of the recipe..."
                   rows={3}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Категория</Label>
+                  <Label htmlFor="category">Category</Label>
                   <Input
                     id="category"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="Супы"
+                    placeholder="Soups"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cuisine">Кухня</Label>
+                  <Label htmlFor="cuisine">Cuisine</Label>
                   <Input
                     id="cuisine"
                     value={formData.cuisine}
                     onChange={(e) => setFormData({ ...formData, cuisine: e.target.value })}
-                    placeholder="Украинская"
+                    placeholder="Italian"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="difficulty">Сложность</Label>
+                <Label htmlFor="difficulty">Difficulty</Label>
                 <Select
                   value={formData.difficulty}
                   onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
@@ -197,16 +197,16 @@ export default function Admin() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="easy">Легко</SelectItem>
-                    <SelectItem value="medium">Средне</SelectItem>
-                    <SelectItem value="hard">Сложно</SelectItem>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="prep_time">Подготовка (мин)</Label>
+                  <Label htmlFor="prep_time">Prep Time (min)</Label>
                   <Input
                     id="prep_time"
                     type="number"
@@ -217,7 +217,7 @@ export default function Admin() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cook_time">Готовка (мин)</Label>
+                  <Label htmlFor="cook_time">Cook Time (min)</Label>
                   <Input
                     id="cook_time"
                     type="number"
@@ -228,7 +228,7 @@ export default function Admin() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="servings">Порций</Label>
+                  <Label htmlFor="servings">Servings</Label>
                   <Input
                     id="servings"
                     type="number"
@@ -240,7 +240,7 @@ export default function Admin() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">URL изображения</Label>
+                <Label htmlFor="image_url">Image URL</Label>
                 <Input
                   id="image_url"
                   value={formData.image_url}
@@ -251,10 +251,10 @@ export default function Admin() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Ингредиенты *</Label>
+                  <Label>Ingredients *</Label>
                   <Button type="button" onClick={handleAddIngredient} size="sm" variant="outline">
                     <Plus className="h-4 w-4 mr-2" />
-                    Добавить
+                    Add
                   </Button>
                 </div>
                 {ingredients.map((ingredient, index) => (
@@ -262,7 +262,7 @@ export default function Admin() {
                     <Input
                       value={ingredient}
                       onChange={(e) => handleIngredientChange(index, e.target.value)}
-                      placeholder="Например: 300г муки"
+                      placeholder="E.g.: 300g flour"
                     />
                     {ingredients.length > 1 && (
                       <Button
@@ -280,10 +280,10 @@ export default function Admin() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Инструкции *</Label>
+                  <Label>Instructions *</Label>
                   <Button type="button" onClick={handleAddInstruction} size="sm" variant="outline">
                     <Plus className="h-4 w-4 mr-2" />
-                    Добавить
+                    Add
                   </Button>
                 </div>
                 {instructions.map((instruction, index) => (
@@ -291,7 +291,7 @@ export default function Admin() {
                     <Textarea
                       value={instruction}
                       onChange={(e) => handleInstructionChange(index, e.target.value)}
-                      placeholder={`Шаг ${index + 1}`}
+                      placeholder={`Step ${index + 1}`}
                       rows={2}
                     />
                     {instructions.length > 1 && (
@@ -310,7 +310,7 @@ export default function Admin() {
 
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Создать рецепт
+                Create Recipe
               </Button>
             </form>
           </CardContent>

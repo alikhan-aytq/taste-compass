@@ -36,18 +36,18 @@ export const Header = ({ user }: HeaderProps) => {
 
         <nav className="hidden md:flex items-center gap-6">
           <Link to="/recipes" className="text-sm font-medium hover:text-primary transition-colors">
-            Рецепты
+            Recipes
           </Link>
           {user && (
             <>
               <Link to="/my-recipes" className="text-sm font-medium hover:text-primary transition-colors">
-                Мои рецепты
+                My Recipes
               </Link>
               <Link to="/meal-plan" className="text-sm font-medium hover:text-primary transition-colors">
-                Меню недели
+                Meal Plan
               </Link>
               <Link to="/shopping-list" className="text-sm font-medium hover:text-primary transition-colors">
-                Список покупок
+                Shopping List
               </Link>
             </>
           )}
@@ -65,13 +65,13 @@ export const Header = ({ user }: HeaderProps) => {
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
-                    Профиль
+                    Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/favorites" className="flex items-center">
                     <Heart className="mr-2 h-4 w-4" />
-                    Избранное
+                    Favorites
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (
@@ -80,7 +80,7 @@ export const Header = ({ user }: HeaderProps) => {
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="flex items-center">
                         <ShieldCheck className="mr-2 h-4 w-4" />
-                        Админ-панель
+                        Admin Panel
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -89,31 +89,31 @@ export const Header = ({ user }: HeaderProps) => {
                 <DropdownMenuItem asChild className="md:hidden">
                   <Link to="/my-recipes" className="flex items-center">
                     <BookOpen className="mr-2 h-4 w-4" />
-                    Мои рецепты
+                    My Recipes
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="md:hidden">
                   <Link to="/meal-plan" className="flex items-center">
                     <Calendar className="mr-2 h-4 w-4" />
-                    Меню недели
+                    Meal Plan
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="md:hidden">
                   <Link to="/shopping-list" className="flex items-center">
                     <ShoppingCart className="mr-2 h-4 w-4" />
-                    Список покупок
+                    Shopping List
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
-                  Выйти
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <Link to="/auth">Войти</Link>
+              <Link to="/auth">Sign In</Link>
             </Button>
           )}
         </div>

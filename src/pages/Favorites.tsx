@@ -66,8 +66,8 @@ const Favorites = () => {
     } catch (error) {
       console.error('Error fetching favorites:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить избранное',
+        title: 'Error',
+        description: 'Failed to load favorites',
         variant: 'destructive',
       });
     } finally {
@@ -92,14 +92,14 @@ const Favorites = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-8">
           <Heart className="h-8 w-8 text-primary fill-primary" />
-          <h1 className="text-3xl font-bold">Избранное</h1>
+          <h1 className="text-3xl font-bold">Favorites</h1>
         </div>
 
         {favorites.length === 0 ? (
           <div className="text-center py-12">
             <Heart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <p className="text-xl text-muted-foreground mb-2">Пока нет избранных рецептов</p>
-            <p className="text-muted-foreground">Добавляйте рецепты в избранное, чтобы быстро находить их здесь</p>
+            <p className="text-xl text-muted-foreground mb-2">No favorite recipes yet</p>
+            <p className="text-muted-foreground">Add recipes to favorites to quickly find them here</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

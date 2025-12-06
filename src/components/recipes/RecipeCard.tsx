@@ -43,8 +43,8 @@ export const RecipeCard = ({
     
     if (!userId) {
       toast({
-        title: "Требуется авторизация",
-        description: "Войдите, чтобы добавить в избранное",
+        title: "Authentication required",
+        description: "Sign in to add to favorites",
         variant: "destructive",
       });
       return;
@@ -61,7 +61,7 @@ export const RecipeCard = ({
         if (error) throw error;
         setIsFavorite(false);
         toast({
-          title: "Удалено из избранного",
+          title: "Removed from favorites",
         });
       } else {
         const { error } = await supabase
@@ -71,14 +71,14 @@ export const RecipeCard = ({
         if (error) throw error;
         setIsFavorite(true);
         toast({
-          title: "Добавлено в избранное",
+          title: "Added to favorites",
         });
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
       toast({
-        title: "Ошибка",
-        description: "Не удалось обновить избранное",
+        title: "Error",
+        description: "Failed to update favorites",
         variant: "destructive",
       });
     }
@@ -96,7 +96,7 @@ export const RecipeCard = ({
             />
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
-              Нет изображения
+              No image
             </div>
           )}
           <Button
@@ -128,7 +128,7 @@ export const RecipeCard = ({
                     : "border-destructive text-destructive"
                 }
               >
-                {difficulty === "easy" ? "Легко" : difficulty === "medium" ? "Средне" : "Сложно"}
+                {difficulty === "easy" ? "Easy" : difficulty === "medium" ? "Medium" : "Hard"}
               </Badge>
             )}
           </div>
@@ -137,7 +137,7 @@ export const RecipeCard = ({
           {totalTime > 0 && (
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
-              <span>{totalTime} мин</span>
+              <span>{totalTime} min</span>
             </div>
           )}
           {servings && (

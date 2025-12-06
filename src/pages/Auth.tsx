@@ -11,8 +11,8 @@ import { ChefHat } from "lucide-react";
 import { z } from "zod";
 
 const authSchema = z.object({
-  email: z.string().email({ message: "Неверный формат email" }),
-  password: z.string().min(6, { message: "Пароль должен быть не менее 6 символов" }),
+  email: z.string().email({ message: "Invalid email format" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
 const Auth = () => {
@@ -50,20 +50,20 @@ const Auth = () => {
       if (error) throw error;
 
       toast({
-        title: "Регистрация успешна!",
-        description: "Добро пожаловать в RecipeHub",
+        title: "Registration successful!",
+        description: "Welcome to RecipeHub",
       });
       navigate("/");
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "Ошибка валидации",
+          title: "Validation error",
           description: error.errors[0].message,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Ошибка регистрации",
+          title: "Registration error",
           description: error.message,
           variant: "destructive",
         });
@@ -88,20 +88,20 @@ const Auth = () => {
       if (error) throw error;
 
       toast({
-        title: "Вход выполнен!",
-        description: "Добро пожаловать обратно",
+        title: "Signed in!",
+        description: "Welcome back",
       });
       navigate("/");
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "Ошибка валидации",
+          title: "Validation error",
           description: error.errors[0].message,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Ошибка входа",
+          title: "Sign in error",
           description: error.message,
           variant: "destructive",
         });
@@ -121,16 +121,16 @@ const Auth = () => {
               RecipeHub
             </span>
           </div>
-          <CardTitle className="text-2xl text-center">Добро пожаловать</CardTitle>
+          <CardTitle className="text-2xl text-center">Welcome</CardTitle>
           <CardDescription className="text-center">
-            Войдите или создайте аккаунт, чтобы начать работу
+            Sign in or create an account to get started
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Вход</TabsTrigger>
-              <TabsTrigger value="signup">Регистрация</TabsTrigger>
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
@@ -146,7 +146,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signin-password">Пароль</Label>
+                  <Label htmlFor="signin-password">Password</Label>
                   <Input
                     id="signin-password"
                     type="password"
@@ -156,7 +156,7 @@ const Auth = () => {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Загрузка..." : "Войти"}
+                  {loading ? "Loading..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
@@ -174,18 +174,18 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Пароль</Label>
+                  <Label htmlFor="signup-password">Password</Label>
                   <Input
                     id="signup-password"
                     type="password"
-                    placeholder="Минимум 6 символов"
+                    placeholder="At least 6 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Загрузка..." : "Зарегистрироваться"}
+                  {loading ? "Loading..." : "Sign Up"}
                 </Button>
               </form>
             </TabsContent>
