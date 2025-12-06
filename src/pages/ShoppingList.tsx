@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 interface ShoppingItem {
   id: string;
@@ -47,13 +48,7 @@ const ShoppingList = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchShoppingList();
-    }
-  }, [user]);
-
-  const fetchShoppingList = async () => {
+  const fetchShoppingList = useCallback(async () => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -76,7 +71,13 @@ const ShoppingList = () => {
     } else {
       createNewList();
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchShoppingList();
+    }
+  }, [user, fetchShoppingList]);
 
   const createNewList = async () => {
     if (!user) return;
@@ -100,7 +101,7 @@ const ShoppingList = () => {
 
     const { error } = await supabase
       .from("shopping_lists")
-      .update({ items: updatedItems as any })
+      .update({ items: updatedItems as unknown as Json })
       .eq("id", listId);
 
     if (error) {

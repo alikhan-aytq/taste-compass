@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/layout/Header";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { Input } from "@/components/ui/input";
@@ -47,11 +47,27 @@ const Recipes = () => {
     fetchRecipes();
   }, []);
 
+  const fetchFavorites = useCallback(async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("recipe_id")
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Error fetching favorites:", error);
+      return;
+    }
+
+    setFavorites(new Set(data.map((f) => f.recipe_id)));
+  }, [user]);
+
   useEffect(() => {
     if (user) {
       fetchFavorites();
     }
-  }, [user]);
+  }, [user, fetchFavorites]);
 
   const fetchRecipes = async () => {
     const { data, error } = await supabase
@@ -68,21 +84,6 @@ const Recipes = () => {
     setRecipes(data || []);
   };
 
-  const fetchFavorites = async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from("favorites")
-      .select("recipe_id")
-      .eq("user_id", user.id);
-
-    if (error) {
-      console.error("Error fetching favorites:", error);
-      return;
-    }
-
-    setFavorites(new Set(data.map((f) => f.recipe_id)));
-  };
 
   const filteredRecipes = recipes.filter((recipe) => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
