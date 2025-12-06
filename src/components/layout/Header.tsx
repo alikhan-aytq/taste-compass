@@ -31,7 +31,7 @@ export const Header = ({ user }: HeaderProps) => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
           <ChefHat className="h-6 w-6 text-primary" />
-          <span className="bg-gradient-warm bg-clip-text text-transparent">RecipeHub</span>
+          <span className="bg-gradient-warm bg-clip-text text-transparent">TasteCompass</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">

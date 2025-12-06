@@ -40,3 +40,25 @@ jobs:
         name: dist
         path: dist/
         retention-days: 7
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production..."
+        # Add your deployment commands here, for example:
+        # - Deploy to Vercel: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+        # - Deploy to Netlify: npx netlify deploy --prod --dir=dist --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }}
+        # - Deploy to AWS S3: aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete
+        # - Deploy via SSH: rsync -avz dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/
+        echo "Deployment complete!"
