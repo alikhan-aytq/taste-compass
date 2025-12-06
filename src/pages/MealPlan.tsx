@@ -9,12 +9,22 @@ import { User, Session } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 import { format, startOfWeek, addDays, addWeeks, subWeeks } from "date-fns";
 import { enUS } from "date-fns/locale";
+import { useCallback } from "react";
+
+import { Json } from "@/integrations/supabase/types";
+
+interface MealPlanData {
+  id: string;
+  user_id: string;
+  week_start_date: string;
+  meals: Json;
+}
 
 const MealPlan = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
-  const [mealPlan, setMealPlan] = useState<any>(null);
+  const [mealPlan, setMealPlan] = useState<MealPlanData | { meals: Record<string, unknown> } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -40,13 +50,7 @@ const MealPlan = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchMealPlan();
-    }
-  }, [user, currentWeek]);
-
-  const fetchMealPlan = async () => {
+  const fetchMealPlan = useCallback(async () => {
     if (!user) return;
 
     const weekStart = format(currentWeek, "yyyy-MM-dd");
@@ -64,7 +68,13 @@ const MealPlan = () => {
     }
 
     setMealPlan(data || { meals: {} });
-  };
+  }, [user, currentWeek]);
+
+  useEffect(() => {
+    if (user) {
+      fetchMealPlan();
+    }
+  }, [user, currentWeek, fetchMealPlan]);
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
 

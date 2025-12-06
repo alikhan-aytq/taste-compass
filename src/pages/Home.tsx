@@ -9,10 +9,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import heroImage from "@/assets/hero-cooking.jpg";
 
+interface Recipe {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  prep_time: number | null;
+  cook_time: number | null;
+  servings: number | null;
+  difficulty: string | null;
+  category: string | null;
+}
+
 const Home = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [featuredRecipes, setFeaturedRecipes] = useState<any[]>([]);
+  const [featuredRecipes, setFeaturedRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 

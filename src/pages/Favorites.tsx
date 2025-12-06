@@ -5,6 +5,8 @@ import { Header } from '@/components/layout/Header';
 import { RecipeCard } from '@/components/recipes/RecipeCard';
 import { Loader2, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { User } from '@supabase/supabase-js';
+import { useCallback } from 'react';
 
 interface Recipe {
   id: string;
@@ -17,27 +19,19 @@ interface Recipe {
   cuisine: string | null;
 }
 
+interface FavoriteWithRecipe {
+  recipe_id: string;
+  recipes: Recipe | null;
+}
+
 const Favorites = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/auth');
-        return;
-      }
-      setUser(user);
-      fetchFavorites(user.id);
-    };
-    getUser();
-  }, [navigate]);
-
-  const fetchFavorites = async (userId: string) => {
+  const fetchFavorites = useCallback(async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('favorites')
@@ -58,9 +52,9 @@ const Favorites = () => {
 
       if (error) throw error;
 
-      const recipesData = data
-        ?.map((fav: any) => fav.recipes)
-        .filter(Boolean) as Recipe[];
+      const recipesData = (data as unknown as FavoriteWithRecipe[])
+        ?.map((fav) => fav.recipes)
+        .filter((recipe): recipe is Recipe => recipe !== null);
 
       setFavorites(recipesData || []);
     } catch (error) {
@@ -73,7 +67,20 @@ const Favorites = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+      setUser(user);
+      fetchFavorites(user.id);
+    };
+    getUser();
+  }, [navigate, fetchFavorites]);
 
   if (loading) {
     return (

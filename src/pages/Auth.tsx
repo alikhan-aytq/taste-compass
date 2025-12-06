@@ -54,7 +54,7 @@ const Auth = () => {
         description: "Welcome to RecipeHub",
       });
       navigate("/");
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
           title: "Validation error",
@@ -62,9 +62,10 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
+        const errorMessage = error instanceof Error ? error.message : "An error occurred";
         toast({
           title: "Registration error",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -92,7 +93,7 @@ const Auth = () => {
         description: "Welcome back",
       });
       navigate("/");
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
           title: "Validation error",
@@ -100,9 +101,10 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
+        const errorMessage = error instanceof Error ? error.message : "An error occurred";
         toast({
           title: "Sign in error",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       }

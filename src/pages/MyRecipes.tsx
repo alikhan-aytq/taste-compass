@@ -6,11 +6,24 @@ import { Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
+import { useCallback } from "react";
+
+interface Recipe {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  prep_time: number | null;
+  cook_time: number | null;
+  servings: number | null;
+  difficulty: string | null;
+  category: string | null;
+}
 
 const MyRecipes = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [recipes, setRecipes] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,13 +48,7 @@ const MyRecipes = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchMyRecipes();
-    }
-  }, [user]);
-
-  const fetchMyRecipes = async () => {
+  const fetchMyRecipes = useCallback(async () => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -56,7 +63,13 @@ const MyRecipes = () => {
     }
 
     setRecipes(data || []);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchMyRecipes();
+    }
+  }, [user, fetchMyRecipes]);
 
   return (
     <div className="min-h-screen bg-background">
