@@ -21,6 +21,10 @@ interface Recipe {
   category: string | null;
 }
 
+interface RecipeWithFavorites extends Recipe {
+  favorites: { count: number }[];
+}
+
 const Home = () => {
   const { user } = useAuth();
   const [featuredRecipes, setFeaturedRecipes] = useState<Recipe[]>([]);
@@ -34,17 +38,24 @@ const Home = () => {
   const fetchFeaturedRecipes = async () => {
     const { data, error } = await supabase
       .from("recipes")
-      .select("*")
-      .eq("is_public", true)
-      .order("created_at", { ascending: false })
-      .limit(6);
+      .select("*, favorites(count)")
+      .eq("is_public", true);
 
     if (error) {
       console.error("Error fetching recipes:", error);
       return;
     }
 
-    setFeaturedRecipes(data || []);
+    // Sort by favorites count (most favorited first) and take top 6
+    const sorted = (data as RecipeWithFavorites[] || [])
+      .sort((a, b) => {
+        const countA = a.favorites?.[0]?.count || 0;
+        const countB = b.favorites?.[0]?.count || 0;
+        return countB - countA;
+      })
+      .slice(0, 6);
+
+    setFeaturedRecipes(sorted);
   };
 
   const handleSearch = () => {
@@ -166,6 +177,7 @@ const Home = () => {
                 difficulty={recipe.difficulty}
                 category={recipe.category}
                 userId={user?.id}
+                favoritesCount={(recipe as any).favorites?.[0]?.count || 0}
               />
             ))}
           </div>

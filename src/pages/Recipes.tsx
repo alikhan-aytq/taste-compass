@@ -17,6 +17,7 @@ interface Recipe {
   servings: number | null;
   difficulty: string | null;
   category: string | null;
+  favorites?: { count: number }[];
 }
 
 const Recipes = () => {
@@ -56,7 +57,7 @@ const Recipes = () => {
   const fetchRecipes = async () => {
     const { data, error } = await supabase
       .from("recipes")
-      .select("*")
+      .select("*, favorites(count)")
       .eq("is_public", true)
       .order("created_at", { ascending: false });
 
@@ -145,6 +146,7 @@ const Recipes = () => {
                 category={recipe.category || undefined}
                 isFavorite={favorites.has(recipe.id)}
                 userId={user?.id}
+                favoritesCount={recipe.favorites?.[0]?.count || 0}
               />
             ))}
           </div>

@@ -19,6 +19,7 @@ interface RecipeCardProps {
   category?: string;
   isFavorite?: boolean;
   userId?: string;
+  favoritesCount?: number;
 }
 
 export const RecipeCard = ({
@@ -33,6 +34,7 @@ export const RecipeCard = ({
   category,
   isFavorite: initialFavorite = false,
   userId,
+  favoritesCount = 0,
 }: RecipeCardProps) => {
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
   const { toast } = useToast();
@@ -144,6 +146,12 @@ export const RecipeCard = ({
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
               <span>{servings} serv.</span>
+            </div>
+          )}
+          {favoritesCount > 0 && (
+            <div className="flex items-center gap-1 ml-auto text-primary">
+              <Heart className="h-4 w-4 fill-primary" />
+              <span>{favoritesCount}</span>
             </div>
           )}
         </CardFooter>
