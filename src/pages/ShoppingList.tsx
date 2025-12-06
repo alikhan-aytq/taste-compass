@@ -48,6 +48,23 @@ const ShoppingList = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const createNewList = useCallback(async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("shopping_lists")
+      .insert({ user_id: user.id, items: [] })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating shopping list:", error);
+      return;
+    }
+
+    setListId(data.id);
+  }, [user]);
+
   const fetchShoppingList = useCallback(async () => {
     if (!user) return;
 
@@ -71,30 +88,13 @@ const ShoppingList = () => {
     } else {
       createNewList();
     }
-  }, [user]);
+  }, [user, createNewList]);
 
   useEffect(() => {
     if (user) {
       fetchShoppingList();
     }
   }, [user, fetchShoppingList]);
-
-  const createNewList = async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from("shopping_lists")
-      .insert({ user_id: user.id, items: [] })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error creating shopping list:", error);
-      return;
-    }
-
-    setListId(data.id);
-  };
 
   const saveList = async (updatedItems: ShoppingItem[]) => {
     if (!listId) return;
