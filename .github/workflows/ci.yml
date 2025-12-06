@@ -47,18 +47,27 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
     steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-        path: dist/
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Deploy to production
-      run: |
-        echo "Deploying to production..."
-        # Add your deployment commands here, for example:
-        # - Deploy to Vercel: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
-        # - Deploy to Netlify: npx netlify deploy --prod --dir=dist --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }}
-        # - Deploy to AWS S3: aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete
-        # - Deploy via SSH: rsync -avz dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/
-        echo "Deployment complete!"
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Vercel CLI
+      run: npm install -g vercel
+
+    - name: Pull Vercel Environment
+      run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+    - name: Build with Vercel
+      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+
+    - name: Deploy to Vercel
+      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
