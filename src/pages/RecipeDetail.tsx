@@ -163,14 +163,16 @@ export default function RecipeDetail() {
               )}
             </div>
 
-            <Button
-              variant={isFavorite ? "default" : "outline"}
-              onClick={handleToggleFavorite}
-              className="w-full"
-            >
-              <Heart className={`mr-2 h-4 w-4 ${isFavorite ? "fill-current" : ""}`} />
-              {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
-            </Button>
+            {user && recipe.user_id !== user.id && (
+              <Button
+                variant={isFavorite ? "default" : "outline"}
+                onClick={handleToggleFavorite}
+                className="w-full"
+              >
+                <Heart className={`mr-2 h-4 w-4 ${isFavorite ? "fill-current" : ""}`} />
+                {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              </Button>
+            )}
           </div>
 
           {/* Details Section */}

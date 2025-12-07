@@ -35,10 +35,12 @@ export const RecipePickerDialog = ({
   const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
 
+
   useEffect(() => {
     if (open) {
       fetchAllRecipes();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, userId]);
 
   const fetchAllRecipes = async () => {
