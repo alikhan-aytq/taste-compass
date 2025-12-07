@@ -24,17 +24,37 @@ const CookingTimer = () => {
   const [newTimerMinutes, setNewTimerMinutes] = useState("");
   const [newTimerSeconds, setNewTimerSeconds] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUnlocked = useRef(false);
 
-  // Create audio context for alarm
+  // Create audio element for alarm
   useEffect(() => {
-    audioRef.current = new Audio("/sounds/kitchen-timer.mp3");
+    const audio = new Audio("/sounds/kitchen-timer.mp3");
+    audio.preload = "auto";
+    audioRef.current = audio;
     return () => {
       audioRef.current = null;
     };
   }, []);
 
+  // Unlock audio on first user interaction (browser autoplay policy)
+  useEffect(() => {
+    const unlockAudio = () => {
+      if (!audioUnlocked.current && audioRef.current) {
+        audioRef.current.play().then(() => {
+          audioRef.current?.pause();
+          audioRef.current!.currentTime = 0;
+          audioUnlocked.current = true;
+        }).catch(() => {});
+      }
+    };
+
+    document.addEventListener("click", unlockAudio, { once: true });
+    return () => document.removeEventListener("click", unlockAudio);
+  }, []);
+
   const playAlarm = useCallback(() => {
     if (audioRef.current) {
+      audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => {});
     }
   }, []);
