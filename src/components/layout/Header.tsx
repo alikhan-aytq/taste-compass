@@ -19,8 +19,22 @@ interface HeaderProps {
 
 export const Header = ({ user }: HeaderProps) => {
   const navigate = useNavigate();
-  const { isAdmin } = useUserRole();
+  const { isAdmin, loading: roleLoading } = useUserRole();
 
+  // Show minimal header while role is loading to prevent flickering
+  if (user && roleLoading) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-2 font-bold text-xl">
+            <ChefHat className="h-6 w-6 text-primary" />
+            <span className="bg-gradient-warm bg-clip-text text-transparent">TasteCompass</span>
+          </div>
+          <div className="h-10 w-10" /> {/* Placeholder for user menu */}
+        </div>
+      </header>
+    );
+  }
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
