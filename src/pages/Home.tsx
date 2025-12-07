@@ -21,6 +21,7 @@ interface Recipe {
   servings: number | null;
   difficulty: string | null;
   category: string | null;
+  user_id: string | null;
 }
 
 interface RecipeWithFavorites extends Recipe {
@@ -235,6 +236,7 @@ const Home = () => {
                     difficulty={recipe.difficulty}
                     category={recipe.category}
                     userId={user?.id}
+                    recipeOwnerId={recipe.user_id}
                     isFavorite={userFavorites.includes(recipe.id)}
                     favoritesCount={recipe.favorites?.[0]?.count || 0}
                   />
@@ -361,6 +363,7 @@ const Home = () => {
                 difficulty={recipe.difficulty}
                 category={recipe.category}
                 userId={user?.id}
+                recipeOwnerId={recipe.user_id}
                 isFavorite={userFavorites.includes(recipe.id)}
                 favoritesCount={recipe.favorites?.[0]?.count || 0}
               />

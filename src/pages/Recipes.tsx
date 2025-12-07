@@ -18,6 +18,7 @@ interface Recipe {
   servings: number | null;
   difficulty: string | null;
   category: string | null;
+  user_id: string | null;
   favorites?: { count: number }[];
 }
 
@@ -148,6 +149,7 @@ const Recipes = () => {
                 category={recipe.category || undefined}
                 isFavorite={favorites.has(recipe.id)}
                 userId={user?.id}
+                recipeOwnerId={recipe.user_id || undefined}
                 favoritesCount={recipe.favorites?.[0]?.count || 0}
               />
             ))}

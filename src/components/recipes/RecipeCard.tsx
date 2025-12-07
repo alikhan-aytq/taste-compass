@@ -19,6 +19,7 @@ interface RecipeCardProps {
   category?: string;
   isFavorite?: boolean;
   userId?: string;
+  recipeOwnerId?: string;
   favoritesCount?: number;
 }
 
@@ -34,6 +35,7 @@ export const RecipeCard = ({
   category,
   isFavorite: initialFavorite = false,
   userId,
+  recipeOwnerId,
   favoritesCount = 0,
 }: RecipeCardProps) => {
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
@@ -106,14 +108,16 @@ export const RecipeCard = ({
               No image
             </div>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 bg-background/80 hover:bg-background/90"
-            onClick={handleToggleFavorite}
-          >
-            <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary text-primary" : ""}`} />
-          </Button>
+          {userId && recipeOwnerId !== userId && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 bg-background/80 hover:bg-background/90"
+              onClick={handleToggleFavorite}
+            >
+              <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary text-primary" : ""}`} />
+            </Button>
+          )}
         </div>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-2 mb-2">

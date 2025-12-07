@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,7 +30,6 @@ const CreateRecipe = () => {
     difficulty: "",
     category: "",
     cuisine: "",
-    is_public: false,
   });
 
   const [ingredients, setIngredients] = useState<string[]>([""]);
@@ -73,7 +72,7 @@ const CreateRecipe = () => {
         difficulty: formData.difficulty || null,
         category: formData.category || null,
         cuisine: formData.cuisine || null,
-        is_public: formData.is_public,
+        is_public: false,
         ingredients: ingredients.filter(i => i.trim()),
         instructions: instructions.filter(i => i.trim()),
         user_id: user.id,
@@ -83,8 +82,9 @@ const CreateRecipe = () => {
 
       toast({ title: "Success", description: "Recipe created successfully!" });
       navigate("/my-recipes");
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to create recipe";
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -234,14 +234,6 @@ const CreateRecipe = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
-                <Switch
-                  id="is_public"
-                  checked={formData.is_public}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
-                />
-                <Label htmlFor="is_public">Make this recipe public</Label>
-              </div>
             </CardContent>
           </Card>
 

@@ -16,6 +16,7 @@ interface Recipe {
   cook_time: number | null;
   difficulty: string | null;
   cuisine: string | null;
+  user_id: string | null;
 }
 
 interface FavoriteWithRecipe {
@@ -119,6 +120,7 @@ const Favorites = () => {
                 cookTime={recipe.cook_time || undefined}
                 difficulty={recipe.difficulty || undefined}
                 userId={user?.id}
+                recipeOwnerId={recipe.user_id || undefined}
                 isFavorite={true}
               />
             ))}

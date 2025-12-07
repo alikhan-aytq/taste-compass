@@ -17,6 +17,7 @@ interface Recipe {
   servings: number | null;
   difficulty: string | null;
   category: string | null;
+  user_id: string | null;
 }
 
 const MyRecipes = () => {
@@ -107,6 +108,7 @@ const MyRecipes = () => {
                 difficulty={recipe.difficulty}
                 category={recipe.category}
                 userId={user?.id}
+                recipeOwnerId={recipe.user_id}
               />
             ))}
           </div>
