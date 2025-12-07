@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -39,6 +39,11 @@ export const RecipeCard = ({
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
   const { toast } = useToast();
   const totalTime = (prepTime || 0) + (cookTime || 0);
+
+  // Sync with prop when it changes (e.g., after favorites are fetched)
+  useEffect(() => {
+    setIsFavorite(initialFavorite);
+  }, [initialFavorite]);
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
