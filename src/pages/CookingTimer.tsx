@@ -24,37 +24,17 @@ const CookingTimer = () => {
   const [newTimerMinutes, setNewTimerMinutes] = useState("");
   const [newTimerSeconds, setNewTimerSeconds] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioUnlocked = useRef(false);
 
-  // Create audio element for alarm
+  // Create audio context for alarm
   useEffect(() => {
-    const audio = new Audio("/sounds/kitchen-timer.mp3");
-    audio.preload = "auto";
-    audioRef.current = audio;
+    audioRef.current = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleVJJZ6LR0LVrJgs6hrXU48FxQzZtqtfjxnY4L2+z3OfEcTE4cbTg6cdtMDZwsNzpyGsxN2+w2+nIazE3b7Db6chrMTdvsNvpyGsxN2+w2+nIazE3b7Db6chrMTdvsNvpyGsxN2+w2+nIaw==");
     return () => {
       audioRef.current = null;
     };
   }, []);
 
-  // Unlock audio on first user interaction (browser autoplay policy)
-  useEffect(() => {
-    const unlockAudio = () => {
-      if (!audioUnlocked.current && audioRef.current) {
-        audioRef.current.play().then(() => {
-          audioRef.current?.pause();
-          audioRef.current!.currentTime = 0;
-          audioUnlocked.current = true;
-        }).catch(() => {});
-      }
-    };
-
-    document.addEventListener("click", unlockAudio, { once: true });
-    return () => document.removeEventListener("click", unlockAudio);
-  }, []);
-
   const playAlarm = useCallback(() => {
     if (audioRef.current) {
-      audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => {});
     }
   }, []);
