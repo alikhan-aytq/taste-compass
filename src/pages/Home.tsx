@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,18 +32,6 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchFeaturedRecipes();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchUserFavorites();
-    } else {
-      setUserFavorites([]);
-    }
-  }, [user]);
-
   const fetchFeaturedRecipes = async () => {
     const { data, error } = await supabase
       .from("recipes")
@@ -67,7 +55,7 @@ const Home = () => {
     setFeaturedRecipes(sorted);
   };
 
-  const fetchUserFavorites = async () => {
+  const fetchUserFavorites = useCallback(async () => {
     if (!user) return;
     
     const { data, error } = await supabase
@@ -81,7 +69,19 @@ const Home = () => {
     }
 
     setUserFavorites(data.map((f) => f.recipe_id));
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchFeaturedRecipes();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserFavorites();
+    } else {
+      setUserFavorites([]);
+    }
+  }, [user, fetchUserFavorites]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
