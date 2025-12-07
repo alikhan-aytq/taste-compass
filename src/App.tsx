@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Favorites from "./pages/Favorites";
 import RecipeDetail from "./pages/RecipeDetail";
+import CookingTimer from "./pages/CookingTimer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/recipe/:id" element={<RecipeDetail />} />
+            <Route path="/cooking-timer" element={<CookingTimer />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChefHat, User, LogOut, Heart, BookOpen, Calendar, ShoppingCart, ShieldCheck } from "lucide-react";
+import { ChefHat, User, LogOut, Heart, BookOpen, Calendar, ShoppingCart, ShieldCheck, Timer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -48,6 +48,9 @@ export const Header = ({ user }: HeaderProps) => {
               </Link>
               <Link to="/shopping-list" className="text-sm font-medium hover:text-primary transition-colors">
                 Shopping List
+              </Link>
+              <Link to="/cooking-timer" className="text-sm font-medium hover:text-primary transition-colors">
+                Timer
               </Link>
             </>
           )}
@@ -102,6 +105,12 @@ export const Header = ({ user }: HeaderProps) => {
                   <Link to="/shopping-list" className="flex items-center">
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     Shopping List
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="md:hidden">
+                  <Link to="/cooking-timer" className="flex items-center">
+                    <Timer className="mr-2 h-4 w-4" />
+                    Timer
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
