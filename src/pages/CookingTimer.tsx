@@ -27,7 +27,7 @@ const CookingTimer = () => {
 
   // Create audio context for alarm
   useEffect(() => {
-    audioRef.current = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleVJJZ6LR0LVrJgs6hrXU48FxQzZtqtfjxnY4L2+z3OfEcTE4cbTg6cdtMDZwsNzpyGsxN2+w2+nIazE3b7Db6chrMTdvsNvpyGsxN2+w2+nIazE3b7Db6chrMTdvsNvpyGsxN2+w2+nIaw==");
+    audioRef.current = new Audio("/sounds/kitchen-timer.mp3");
     return () => {
       audioRef.current = null;
     };
