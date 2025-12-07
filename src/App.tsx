@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Recipes from "./pages/Recipes";
 import MyRecipes from "./pages/MyRecipes";
 import CreateRecipe from "./pages/CreateRecipe";
+import EditRecipe from "./pages/EditRecipe";
 import MealPlan from "./pages/MealPlan";
 import ShoppingList from "./pages/ShoppingList";
 import Profile from "./pages/Profile";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/recipes" element={<Recipes />} />
             <Route path="/my-recipes" element={<MyRecipes />} />
             <Route path="/create-recipe" element={<CreateRecipe />} />
+            <Route path="/edit-recipe/:id" element={<EditRecipe />} />
             <Route path="/meal-plan" element={<MealPlan />} />
             <Route path="/shopping-list" element={<ShoppingList />} />
             <Route path="/profile" element={<Profile />} />

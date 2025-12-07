@@ -109,6 +109,7 @@ const MyRecipes = () => {
                 category={recipe.category}
                 userId={user?.id}
                 recipeOwnerId={recipe.user_id}
+                onDelete={fetchMyRecipes}
               />
             ))}
           </div>

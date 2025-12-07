@@ -1,8 +1,8 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, Heart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Clock, Users, Heart, Pencil, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ interface RecipeCardProps {
   userId?: string;
   recipeOwnerId?: string;
   favoritesCount?: number;
+  onDelete?: () => void;
 }
 
 export const RecipeCard = ({
@@ -37,10 +38,14 @@ export const RecipeCard = ({
   userId,
   recipeOwnerId,
   favoritesCount = 0,
+  onDelete,
 }: RecipeCardProps) => {
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const totalTime = (prepTime || 0) + (cookTime || 0);
+  const isOwner = userId && recipeOwnerId === userId;
 
   // Sync with prop when it changes (e.g., after favorites are fetched)
   useEffect(() => {
@@ -93,6 +98,29 @@ export const RecipeCard = ({
     }
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(`/edit-recipe/${id}`);
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!confirm("Are you sure you want to delete this recipe?")) return;
+    
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase.from("recipes").delete().eq("id", id);
+      if (error) throw error;
+      toast({ title: "Recipe deleted successfully" });
+      onDelete?.();
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+      toast({ title: "Error", description: "Failed to delete recipe", variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Link to={`/recipe/${id}`}>
       <Card className="overflow-hidden transition-all hover:shadow-medium group">
@@ -108,16 +136,39 @@ export const RecipeCard = ({
               No image
             </div>
           )}
-          {userId && recipeOwnerId !== userId && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 bg-background/80 hover:bg-background/90"
-              onClick={handleToggleFavorite}
-            >
-              <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary text-primary" : ""}`} />
-            </Button>
-          )}
+          <div className="absolute top-2 right-2 flex gap-1">
+            {isOwner && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-background/80 hover:bg-background/90"
+                  onClick={handleEdit}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-background/80 hover:bg-destructive/90 hover:text-destructive-foreground"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            {userId && recipeOwnerId !== userId && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-background/80 hover:bg-background/90"
+                onClick={handleToggleFavorite}
+              >
+                <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary text-primary" : ""}`} />
+              </Button>
+            )}
+          </div>
         </div>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-2 mb-2">
