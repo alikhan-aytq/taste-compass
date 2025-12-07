@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Pencil, Plus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, addDays, addWeeks, subWeeks } from "date-fns";
@@ -165,14 +165,26 @@ const MealPlan = () => {
         <h4 className="font-semibold mb-2 text-sm text-muted-foreground">{label}</h4>
         {meal ? (
           <div className="min-h-[80px] p-3 border rounded-lg bg-card relative group">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => handleRemoveMeal(dayKey, mealType)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => handleAddMeal(dayKey, mealType)}
+                title="Change recipe"
+              >
+                <Pencil className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-destructive hover:text-destructive"
+                onClick={() => handleRemoveMeal(dayKey, mealType)}
+                title="Remove recipe"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => navigate(`/recipe/${meal.id}`)}
