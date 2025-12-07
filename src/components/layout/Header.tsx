@@ -51,17 +51,6 @@ export const Header = ({ user }: HeaderProps) => {
             <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full ml-2">Admin</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
-            <Link to="/admin" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Recipes Database
-            </Link>
-            <Link to="/admin?tab=add" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Add Recipe
-            </Link>
-          </nav>
-
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -70,19 +59,6 @@ export const Header = ({ user }: HeaderProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild className="md:hidden">
-                  <Link to="/admin" className="flex items-center">
-                    <Database className="mr-2 h-4 w-4" />
-                    Recipes Database
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="md:hidden">
-                  <Link to="/admin?tab=add" className="flex items-center">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Recipe
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out

@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, Plus, Trash2, Database, PlusCircle, Search } from 'lucide-react';
+import { Loader2, Plus, Trash2, Database, PlusCircle, Search, Pencil } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,6 +50,7 @@ export default function Admin() {
   const [recipesLoading, setRecipesLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingRecipe, setEditingRecipe] = useState<string | null>(null);
   
   const activeTab = searchParams.get('tab') || 'database';
   
@@ -109,6 +110,54 @@ export default function Admin() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleEditRecipe = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('recipes')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      setEditingRecipe(id);
+      setFormData({
+        title: data.title || '',
+        description: data.description || '',
+        category: data.category || '',
+        cuisine: data.cuisine || '',
+        difficulty: data.difficulty || 'medium',
+        prep_time: data.prep_time?.toString() || '',
+        cook_time: data.cook_time?.toString() || '',
+        servings: data.servings?.toString() || '',
+        image_url: data.image_url || '',
+      });
+      setIngredients(Array.isArray(data.ingredients) ? data.ingredients as string[] : ['']);
+      setInstructions(Array.isArray(data.instructions) ? data.instructions as string[] : ['']);
+      setSearchParams({ tab: 'add' });
+    } catch (error) {
+      console.error('Error loading recipe:', error);
+      toast.error('Failed to load recipe for editing');
+    }
+  };
+
+  const resetForm = () => {
+    setEditingRecipe(null);
+    setFormData({
+      title: '',
+      description: '',
+      category: '',
+      cuisine: '',
+      difficulty: 'medium',
+      prep_time: '',
+      cook_time: '',
+      servings: '',
+      image_url: '',
+    });
+    setIngredients(['']);
+    setInstructions(['']);
   };
 
   if (loading) {
@@ -171,40 +220,45 @@ export default function Admin() {
         return;
       }
 
-      const { error } = await supabase.from('recipes').insert({
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        cuisine: formData.cuisine,
-        difficulty: formData.difficulty,
-        prep_time: formData.prep_time ? parseInt(formData.prep_time) : null,
-        cook_time: formData.cook_time ? parseInt(formData.cook_time) : null,
-        servings: formData.servings ? parseInt(formData.servings) : null,
-        image_url: formData.image_url || null,
-        ingredients: filteredIngredients,
-        instructions: filteredInstructions,
-        user_id: user.id,
-        is_public: true,
-      });
+      if (editingRecipe) {
+        const { error } = await supabase.from('recipes').update({
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          cuisine: formData.cuisine,
+          difficulty: formData.difficulty,
+          prep_time: formData.prep_time ? parseInt(formData.prep_time) : null,
+          cook_time: formData.cook_time ? parseInt(formData.cook_time) : null,
+          servings: formData.servings ? parseInt(formData.servings) : null,
+          image_url: formData.image_url || null,
+          ingredients: filteredIngredients,
+          instructions: filteredInstructions,
+        }).eq('id', editingRecipe);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success('Recipe updated successfully');
+      } else {
+        const { error } = await supabase.from('recipes').insert({
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          cuisine: formData.cuisine,
+          difficulty: formData.difficulty,
+          prep_time: formData.prep_time ? parseInt(formData.prep_time) : null,
+          cook_time: formData.cook_time ? parseInt(formData.cook_time) : null,
+          servings: formData.servings ? parseInt(formData.servings) : null,
+          image_url: formData.image_url || null,
+          ingredients: filteredIngredients,
+          instructions: filteredInstructions,
+          user_id: user.id,
+          is_public: true,
+        });
 
-      toast.success('Recipe added successfully');
+        if (error) throw error;
+        toast.success('Recipe added successfully');
+      }
       
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        category: '',
-        cuisine: '',
-        difficulty: 'medium',
-        prep_time: '',
-        cook_time: '',
-        servings: '',
-        image_url: '',
-      });
-      setIngredients(['']);
-      setInstructions(['']);
+      resetForm();
       
       // Refresh recipes list
       fetchRecipes();
@@ -232,13 +286,13 @@ export default function Admin() {
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="database" className="flex items-center gap-2">
+            <TabsTrigger value="database" className="flex items-center gap-2" onClick={() => resetForm()}>
               <Database className="h-4 w-4" />
               Recipes Database
             </TabsTrigger>
-            <TabsTrigger value="add" className="flex items-center gap-2">
+            <TabsTrigger value="add" className="flex items-center gap-2" onClick={() => !editingRecipe && resetForm()}>
               <PlusCircle className="h-4 w-4" />
-              Add Recipe
+              {editingRecipe ? 'Edit Recipe' : 'Add Recipe'}
             </TabsTrigger>
           </TabsList>
 
@@ -290,21 +344,29 @@ export default function Admin() {
                               {new Date(recipe.created_at).toLocaleDateString()}
                             </TableCell>
                             <TableCell className="text-right">
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                    disabled={deletingId === recipe.id}
-                                  >
-                                    {deletingId === recipe.id ? (
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <Trash2 className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                </AlertDialogTrigger>
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditRecipe(recipe.id)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      disabled={deletingId === recipe.id}
+                                    >
+                                      {deletingId === recipe.id ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <Trash2 className="h-4 w-4" />
+                                      )}
+                                    </Button>
+                                  </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
@@ -322,7 +384,8 @@ export default function Admin() {
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
-                              </AlertDialog>
+                                </AlertDialog>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -337,8 +400,17 @@ export default function Admin() {
           <TabsContent value="add">
             <Card>
               <CardHeader>
-                <CardTitle>Add New Recipe</CardTitle>
-                <CardDescription>Create a new public recipe</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{editingRecipe ? 'Edit Recipe' : 'Add New Recipe'}</CardTitle>
+                    <CardDescription>{editingRecipe ? 'Update the recipe details' : 'Create a new public recipe'}</CardDescription>
+                  </div>
+                  {editingRecipe && (
+                    <Button variant="outline" onClick={resetForm}>
+                      Cancel Edit
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -509,7 +581,7 @@ export default function Admin() {
 
                   <Button type="submit" className="w-full" disabled={submitting}>
                     {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create Recipe
+                    {editingRecipe ? 'Update Recipe' : 'Create Recipe'}
                   </Button>
                 </form>
               </CardContent>
