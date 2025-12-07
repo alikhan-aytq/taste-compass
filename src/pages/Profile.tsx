@@ -13,6 +13,8 @@ const Profile = () => {
   const { user, loading: authLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recipesCount, setRecipesCount] = useState(0);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -41,11 +43,32 @@ const Profile = () => {
     }
   }, [user]);
 
+  const fetchStats = useCallback(async () => {
+    if (!user) return;
+
+    // Fetch recipes count
+    const { count: recipes } = await supabase
+      .from("recipes")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    setRecipesCount(recipes || 0);
+
+    // Fetch favorites count
+    const { count: favorites } = await supabase
+      .from("favorites")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    setFavoritesCount(favorites || 0);
+  }, [user]);
+
   useEffect(() => {
     if (user) {
       fetchProfile();
+      fetchStats();
     }
-  }, [user, fetchProfile]);
+  }, [user, fetchProfile, fetchStats]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,11 +166,11 @@ const Profile = () => {
           <CardContent>
             <div className="grid grid-cols-2 gap-4 text-center">
               <div className="p-4 bg-muted/30 rounded-lg">
-                <div className="text-3xl font-bold text-primary">0</div>
+                <div className="text-3xl font-bold text-primary">{recipesCount}</div>
                 <div className="text-sm text-muted-foreground">Recipes</div>
               </div>
               <div className="p-4 bg-muted/30 rounded-lg">
-                <div className="text-3xl font-bold text-secondary">0</div>
+                <div className="text-3xl font-bold text-secondary">{favoritesCount}</div>
                 <div className="text-sm text-muted-foreground">Favorites</div>
               </div>
             </div>
