@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChefHat, User, LogOut, Heart, BookOpen, Calendar, ShoppingCart, ShieldCheck, Timer } from "lucide-react";
+import { ChefHat, User, LogOut, Heart, BookOpen, Calendar, ShoppingCart, Timer, Database, PlusCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -26,6 +26,62 @@ export const Header = ({ user }: HeaderProps) => {
     navigate("/auth");
   };
 
+  // Admin navigation
+  if (user && isAdmin) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <Link to="/admin" className="flex items-center gap-2 font-bold text-xl">
+            <ChefHat className="h-6 w-6 text-primary" />
+            <span className="bg-gradient-warm bg-clip-text text-transparent">TasteCompass</span>
+            <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full ml-2">Admin</span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-6">
+            <Link to="/admin" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Recipes Database
+            </Link>
+            <Link to="/admin?tab=add" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
+              <PlusCircle className="h-4 w-4" />
+              Add Recipe
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild className="md:hidden">
+                  <Link to="/admin" className="flex items-center">
+                    <Database className="mr-2 h-4 w-4" />
+                    Recipes Database
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="md:hidden">
+                  <Link to="/admin?tab=add" className="flex items-center">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Recipe
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="md:hidden" />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Regular user navigation
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -77,17 +133,6 @@ export const Header = ({ user }: HeaderProps) => {
                     Favorites
                   </Link>
                 </DropdownMenuItem>
-                {isAdmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin" className="flex items-center">
-                        <ShieldCheck className="mr-2 h-4 w-4" />
-                        Admin Panel
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
                 <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem asChild className="md:hidden">
                   <Link to="/my-recipes" className="flex items-center">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -8,13 +8,47 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, Database, PlusCircle, Search } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+interface Recipe {
+  id: string;
+  title: string;
+  category: string | null;
+  cuisine: string | null;
+  difficulty: string | null;
+  created_at: string;
+  is_public: boolean | null;
+}
 
 export default function Admin() {
   const { isAdmin, loading } = useUserRole();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipesLoading, setRecipesLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -30,6 +64,45 @@ export default function Admin() {
 
   const [ingredients, setIngredients] = useState<string[]>(['']);
   const [instructions, setInstructions] = useState<string[]>(['']);
+
+  useEffect(() => {
+    if (!loading && isAdmin) {
+      fetchRecipes();
+    }
+  }, [loading, isAdmin]);
+
+  const fetchRecipes = async () => {
+    try {
+      setRecipesLoading(true);
+      const { data, error } = await supabase
+        .from('recipes')
+        .select('id, title, category, cuisine, difficulty, created_at, is_public')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setRecipes(data || []);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+      toast.error('Failed to load recipes');
+    } finally {
+      setRecipesLoading(false);
+    }
+  };
+
+  const handleDeleteRecipe = async (id: string) => {
+    try {
+      setDeletingId(id);
+      const { error } = await supabase.from('recipes').delete().eq('id', id);
+      if (error) throw error;
+      toast.success('Recipe deleted successfully');
+      setRecipes(recipes.filter(r => r.id !== id));
+    } catch (error) {
+      console.error('Error deleting recipe:', error);
+      toast.error('Failed to delete recipe');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -125,6 +198,9 @@ export default function Admin() {
       });
       setIngredients(['']);
       setInstructions(['']);
+      
+      // Refresh recipes list
+      fetchRecipes();
     } catch (error) {
       console.error('Error creating recipe:', error);
       toast.error('Error creating recipe');
@@ -133,188 +209,306 @@ export default function Admin() {
     }
   };
 
+  const filteredRecipes = recipes.filter(recipe =>
+    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    recipe.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    recipe.cuisine?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 py-12">
-      <div className="container max-w-4xl mx-auto px-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl">Admin Panel</CardTitle>
-            <CardDescription>Add public recipes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Recipe Title *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  placeholder="Chicken Parmesan"
-                />
-              </div>
+      <div className="container max-w-6xl mx-auto px-4">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Admin Panel</h1>
+          <p className="text-muted-foreground">Manage recipes database</p>
+        </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of the recipe..."
-                  rows={3}
-                />
-              </div>
+        <Tabs defaultValue="database" className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="database" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Recipes Database
+            </TabsTrigger>
+            <TabsTrigger value="add" className="flex items-center gap-2">
+              <PlusCircle className="h-4 w-4" />
+              Add Recipe
+            </TabsTrigger>
+          </TabsList>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
+          <TabsContent value="database">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Recipes</CardTitle>
+                <CardDescription>View and manage all recipes in the database</CardDescription>
+                <div className="relative mt-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="Soups"
+                    placeholder="Search recipes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
                   />
                 </div>
+              </CardHeader>
+              <CardContent>
+                {recipesLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : filteredRecipes.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    {searchQuery ? 'No recipes found matching your search' : 'No recipes in database'}
+                  </p>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Title</TableHead>
+                          <TableHead className="hidden md:table-cell">Category</TableHead>
+                          <TableHead className="hidden md:table-cell">Cuisine</TableHead>
+                          <TableHead className="hidden sm:table-cell">Difficulty</TableHead>
+                          <TableHead className="hidden lg:table-cell">Created</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredRecipes.map((recipe) => (
+                          <TableRow key={recipe.id}>
+                            <TableCell className="font-medium">{recipe.title}</TableCell>
+                            <TableCell className="hidden md:table-cell">{recipe.category || '-'}</TableCell>
+                            <TableCell className="hidden md:table-cell">{recipe.cuisine || '-'}</TableCell>
+                            <TableCell className="hidden sm:table-cell capitalize">{recipe.difficulty || '-'}</TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              {new Date(recipe.created_at).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    disabled={deletingId === recipe.id}
+                                  >
+                                    {deletingId === recipe.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete "{recipe.title}"? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeleteRecipe(recipe.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                <div className="space-y-2">
-                  <Label htmlFor="cuisine">Cuisine</Label>
-                  <Input
-                    id="cuisine"
-                    value={formData.cuisine}
-                    onChange={(e) => setFormData({ ...formData, cuisine: e.target.value })}
-                    placeholder="Italian"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="difficulty">Difficulty</Label>
-                <Select
-                  value={formData.difficulty}
-                  onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="prep_time">Prep Time (min)</Label>
-                  <Input
-                    id="prep_time"
-                    type="number"
-                    value={formData.prep_time}
-                    onChange={(e) => setFormData({ ...formData, prep_time: e.target.value })}
-                    placeholder="30"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cook_time">Cook Time (min)</Label>
-                  <Input
-                    id="cook_time"
-                    type="number"
-                    value={formData.cook_time}
-                    onChange={(e) => setFormData({ ...formData, cook_time: e.target.value })}
-                    placeholder="60"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="servings">Servings</Label>
-                  <Input
-                    id="servings"
-                    type="number"
-                    value={formData.servings}
-                    onChange={(e) => setFormData({ ...formData, servings: e.target.value })}
-                    placeholder="4"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Ingredients *</Label>
-                  <Button type="button" onClick={handleAddIngredient} size="sm" variant="outline">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add
-                  </Button>
-                </div>
-                {ingredients.map((ingredient, index) => (
-                  <div key={index} className="flex gap-2">
+          <TabsContent value="add">
+            <Card>
+              <CardHeader>
+                <CardTitle>Add New Recipe</CardTitle>
+                <CardDescription>Create a new public recipe</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Recipe Title *</Label>
                     <Input
-                      value={ingredient}
-                      onChange={(e) => handleIngredientChange(index, e.target.value)}
-                      placeholder="E.g.: 300g flour"
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      required
+                      placeholder="Chicken Parmesan"
                     />
-                    {ingredients.length > 1 && (
-                      <Button
-                        type="button"
-                        onClick={() => handleRemoveIngredient(index)}
-                        size="icon"
-                        variant="ghost"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
-                ))}
-              </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Instructions *</Label>
-                  <Button type="button" onClick={handleAddInstruction} size="sm" variant="outline">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add
-                  </Button>
-                </div>
-                {instructions.map((instruction, index) => (
-                  <div key={index} className="flex gap-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
                     <Textarea
-                      value={instruction}
-                      onChange={(e) => handleInstructionChange(index, e.target.value)}
-                      placeholder={`Step ${index + 1}`}
-                      rows={2}
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Brief description of the recipe..."
+                      rows={3}
                     />
-                    {instructions.length > 1 && (
-                      <Button
-                        type="button"
-                        onClick={() => handleRemoveInstruction(index)}
-                        size="icon"
-                        variant="ghost"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
-                ))}
-              </div>
 
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Recipe
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Input
+                        id="category"
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        placeholder="Soups"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cuisine">Cuisine</Label>
+                      <Input
+                        id="cuisine"
+                        value={formData.cuisine}
+                        onChange={(e) => setFormData({ ...formData, cuisine: e.target.value })}
+                        placeholder="Italian"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="difficulty">Difficulty</Label>
+                    <Select
+                      value={formData.difficulty}
+                      onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="prep_time">Prep Time (min)</Label>
+                      <Input
+                        id="prep_time"
+                        type="number"
+                        value={formData.prep_time}
+                        onChange={(e) => setFormData({ ...formData, prep_time: e.target.value })}
+                        placeholder="30"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cook_time">Cook Time (min)</Label>
+                      <Input
+                        id="cook_time"
+                        type="number"
+                        value={formData.cook_time}
+                        onChange={(e) => setFormData({ ...formData, cook_time: e.target.value })}
+                        placeholder="60"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="servings">Servings</Label>
+                      <Input
+                        id="servings"
+                        type="number"
+                        value={formData.servings}
+                        onChange={(e) => setFormData({ ...formData, servings: e.target.value })}
+                        placeholder="4"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="image_url">Image URL</Label>
+                    <Input
+                      id="image_url"
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label>Ingredients *</Label>
+                      <Button type="button" onClick={handleAddIngredient} size="sm" variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                    {ingredients.map((ingredient, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          value={ingredient}
+                          onChange={(e) => handleIngredientChange(index, e.target.value)}
+                          placeholder="E.g.: 300g flour"
+                        />
+                        {ingredients.length > 1 && (
+                          <Button
+                            type="button"
+                            onClick={() => handleRemoveIngredient(index)}
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label>Instructions *</Label>
+                      <Button type="button" onClick={handleAddInstruction} size="sm" variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                    {instructions.map((instruction, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Textarea
+                          value={instruction}
+                          onChange={(e) => handleInstructionChange(index, e.target.value)}
+                          placeholder={`Step ${index + 1}`}
+                          rows={2}
+                        />
+                        {instructions.length > 1 && (
+                          <Button
+                            type="button"
+                            onClick={() => handleRemoveInstruction(index)}
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={submitting}>
+                    {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create Recipe
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
