@@ -3,10 +3,12 @@ import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
-import { Search, ChefHat, Clock, Heart, BookOpen } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, ChefHat, Clock, Heart, BookOpen, Database, PlusCircle, TrendingUp, Users } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import heroImage from "@/assets/hero-cooking.jpg";
 
 interface Recipe {
@@ -27,9 +29,11 @@ interface RecipeWithFavorites extends Recipe {
 
 const Home = () => {
   const { user } = useAuth();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const [featuredRecipes, setFeaturedRecipes] = useState<RecipeWithFavorites[]>([]);
   const [userFavorites, setUserFavorites] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [stats, setStats] = useState({ totalRecipes: 0, totalFavorites: 0, recentRecipes: 0 });
   const navigate = useNavigate();
 
   const fetchFeaturedRecipes = async () => {
@@ -54,6 +58,34 @@ const Home = () => {
 
     setFeaturedRecipes(sorted);
   };
+
+  const fetchAdminStats = useCallback(async () => {
+    if (!isAdmin) return;
+
+    // Fetch total recipes
+    const { count: totalRecipes } = await supabase
+      .from("recipes")
+      .select("*", { count: "exact", head: true });
+
+    // Fetch total favorites
+    const { count: totalFavorites } = await supabase
+      .from("favorites")
+      .select("*", { count: "exact", head: true });
+
+    // Fetch recipes from last 7 days
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const { count: recentRecipes } = await supabase
+      .from("recipes")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", weekAgo.toISOString());
+
+    setStats({
+      totalRecipes: totalRecipes || 0,
+      totalFavorites: totalFavorites || 0,
+      recentRecipes: recentRecipes || 0,
+    });
+  }, [isAdmin]);
 
   const fetchUserFavorites = useCallback(async () => {
     if (!user) return;
@@ -83,6 +115,12 @@ const Home = () => {
     }
   }, [user, fetchUserFavorites]);
 
+  useEffect(() => {
+    if (isAdmin) {
+      fetchAdminStats();
+    }
+  }, [isAdmin, fetchAdminStats]);
+
   const handleSearch = () => {
     if (searchQuery.trim()) {
       navigate(`/recipes?search=${encodeURIComponent(searchQuery)}`);
@@ -95,6 +133,121 @@ const Home = () => {
     }
   };
 
+  // Show loading while checking role
+  if (user && roleLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header user={user} />
+        <div className="container py-12 flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin Dashboard
+  if (user && isAdmin) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header user={user} />
+        
+        <div className="container py-12">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Welcome back! Here's an overview of your recipe database.</p>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Recipes</CardTitle>
+                <Database className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.totalRecipes}</div>
+                <p className="text-xs text-muted-foreground">recipes in database</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Favorites</CardTitle>
+                <Heart className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.totalFavorites}</div>
+                <p className="text-xs text-muted-foreground">times recipes were favorited</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">This Week</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.recentRecipes}</div>
+                <p className="text-xs text-muted-foreground">new recipes added</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mb-12">
+            <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
+              <Button asChild size="lg" className="h-auto py-6">
+                <Link to="/admin?tab=database" className="flex flex-col items-center gap-2">
+                  <Database className="h-6 w-6" />
+                  <span>Manage Recipes</span>
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="h-auto py-6">
+                <Link to="/admin?tab=add" className="flex flex-col items-center gap-2">
+                  <PlusCircle className="h-6 w-6" />
+                  <span>Add New Recipe</span>
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Popular Recipes Preview */}
+          {featuredRecipes.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Most Popular Recipes</h2>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/admin?tab=database">View All</Link>
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredRecipes.slice(0, 3).map((recipe) => (
+                  <RecipeCard
+                    key={recipe.id}
+                    id={recipe.id}
+                    title={recipe.title}
+                    description={recipe.description}
+                    imageUrl={recipe.image_url}
+                    prepTime={recipe.prep_time}
+                    cookTime={recipe.cook_time}
+                    servings={recipe.servings}
+                    difficulty={recipe.difficulty}
+                    category={recipe.category}
+                    userId={user?.id}
+                    isFavorite={userFavorites.includes(recipe.id)}
+                    favoritesCount={recipe.favorites?.[0]?.count || 0}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Regular User / Guest Home Page
   return (
     <div className="min-h-screen bg-background">
       <Header user={user} />
