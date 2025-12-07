@@ -28,12 +28,21 @@ interface RecipeWithFavorites extends Recipe {
 const Home = () => {
   const { user } = useAuth();
   const [featuredRecipes, setFeaturedRecipes] = useState<RecipeWithFavorites[]>([]);
+  const [userFavorites, setUserFavorites] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchFeaturedRecipes();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserFavorites();
+    } else {
+      setUserFavorites([]);
+    }
+  }, [user]);
 
   const fetchFeaturedRecipes = async () => {
     const { data, error } = await supabase
@@ -58,9 +67,31 @@ const Home = () => {
     setFeaturedRecipes(sorted);
   };
 
+  const fetchUserFavorites = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("recipe_id")
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Error fetching user favorites:", error);
+      return;
+    }
+
+    setUserFavorites(data.map((f) => f.recipe_id));
+  };
+
   const handleSearch = () => {
     if (searchQuery.trim()) {
       navigate(`/recipes?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
     }
   };
 
@@ -87,7 +118,7 @@ const Home = () => {
                     placeholder="Find a recipe..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                    onKeyDown={handleKeyDown}
                     className="pl-10 h-12"
                   />
                 </div>
@@ -177,6 +208,7 @@ const Home = () => {
                 difficulty={recipe.difficulty}
                 category={recipe.category}
                 userId={user?.id}
+                isFavorite={userFavorites.includes(recipe.id)}
                 favoritesCount={recipe.favorites?.[0]?.count || 0}
               />
             ))}
